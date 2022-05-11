@@ -1,5 +1,6 @@
 package cell.rules;
 
+//This is just a rule set for statics
 public class StaticRule implements CellRule{
 
 	@Override

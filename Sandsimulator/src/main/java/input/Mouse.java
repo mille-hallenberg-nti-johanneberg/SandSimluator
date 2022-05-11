@@ -1,5 +1,6 @@
 package input;
 
+//This class is just so I can easily access the information from the mouse
 public class Mouse {
 	//Position of mouse on Window
 	private static int x;

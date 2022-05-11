@@ -40,6 +40,7 @@ public enum Keys{
 	public int code = 0;
 	public boolean pressed, down, up;
 	
+	//Constructor
 	private Keys(int keyCode) {
 		this.code = keyCode;
 	}

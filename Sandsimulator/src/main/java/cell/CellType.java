@@ -1,7 +1,6 @@
 package cell;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.badlogic.gdx.graphics.Color;
 
@@ -23,7 +22,7 @@ public enum CellType {
 	
 	SOIL(CellPhase.SOLID, 10f, 0, 0, 0, new ColorGradient(Color.BROWN, new Color(163 / 255f, 90 / 255f, 0, 1)), new SandRule() {
 		@Override
-		//When overriding, I override a value in a CellRule instance. For this example I want the soil to have similar 
+		//When overriding, I override a method in a CellRule instance. For this example I want the soil to have similar 
 		//physics like the sand, but I want it to have a lower moveChance.
 		public float moveChance(){
 			return 20f;
@@ -82,7 +81,7 @@ public enum CellType {
 	//Recipes related to this CellType 
 	private ArrayList<CellRecipe> recipes = new ArrayList<>();
 	
-	//Constructor
+	//Constructor, all parameters are properties of a CellType
 	private CellType(CellPhase phase, float density, float deathChance, float flammabilityChance, float fireConsumeChance, ColorGradient gradient, CellRule rules) {
 		if (density > 100f) density = 100f;
 		if (density < 0f) density = 0f;

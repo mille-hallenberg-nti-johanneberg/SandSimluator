@@ -1,8 +1,5 @@
 package main;
 
-import java.awt.Graphics;
-import java.awt.image.BufferStrategy;
-
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
@@ -13,20 +10,17 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import cell.Cell;
-import cell.CellType;
-import cell.recipes.CellRecipe;
 import cell.recipes.CellRecipes;
 import input.InputManager;
-import input.Keys;
-import input.Mouse;
 import states.GameState;
 import states.State;
+
+//This class is the heart of the entire application/program. It contains functions that calls update-functions
+//for the current State. It also contains functions that responds to a resizing of the Window.
 
 public class Game extends ApplicationAdapter {
 	
@@ -57,7 +51,8 @@ public class Game extends ApplicationAdapter {
 	public static BitmapFont font;
 	
 	@Override	
-	//Function is called when Application first starts.
+	//Function is called when Application first starts. I use this to initiate input, different components such as
+	//cameras, viewports, renders etc.
 	public void create() {
 		
 		//Start input
@@ -72,8 +67,8 @@ public class Game extends ApplicationAdapter {
 		
 		gameCamera = new GameCamera();
 		
-		gameCamera.setX(0);
-		gameCamera.setY(0);
+//		gameCamera.setX(0);
+//		gameCamera.setY(0);
 		
 		fontCamera = new OrthographicCamera();
 		
@@ -88,7 +83,8 @@ public class Game extends ApplicationAdapter {
 	}
 	
 	@Override
-	//Function that resizes window
+	//Function that is called when the Window is resized. It then responds appropriately by updating
+	//The camera positions, the dimensions of different viewports etc.
 	public void resize(int viewportWidth, int viewportHeight) {
         viewport.update(viewportWidth, viewportHeight, true);
         fontViewport.update(viewportWidth, viewportHeight, true);
@@ -102,32 +98,8 @@ public class Game extends ApplicationAdapter {
         fontViewport.apply();
 	}
 	
-	//Game Logic
+	//Game Logic, is called 60 times a second from the render() function.
 	void tick() {
-		if (Keys.A.pressed) {
-			gameCamera.setX(gameCamera.getX()-1);
-		}
-		if (Keys.D.pressed) {
-			gameCamera.setX(gameCamera.getX()+1);
-		}
-		if (Keys.S.pressed) {
-			gameCamera.setY(gameCamera.getY()-1);
-		}
-		if (Keys.W.pressed) {
-			gameCamera.setY(gameCamera.getY()+1);
-		}
-		
-		if (Keys.P.pressed) {
-			gameCamera.changeZoom(-0.02f, Mouse.getX(), Mouse.getY());
-		}
-		if (Keys.O.pressed) {
-			gameCamera.changeZoom(+0.02f, Mouse.getX(), Mouse.getY());
-		}
-		if (Keys.R.pressed) {
-			gameState = new GameState(handler);
-			State.setState(gameState);
-		}
-		
 		if (State.getState() != null) {
 			State.getState().update(input);
 		}
@@ -137,7 +109,7 @@ public class Game extends ApplicationAdapter {
 	}
 	
 	@Override
-	//Function is called 60 times a second.
+	//Function is called 60 times a second from the ApplicationAdapter. (I also use this to call the tick() function)
 	public void render() {
 		//Clear Canvas
 		Gdx.gl.glClearColor(0, 0, 0, 0);
@@ -155,7 +127,7 @@ public class Game extends ApplicationAdapter {
 		sr.begin();
 		sr.set(ShapeType.Filled);
 		if (State.getState() != null) {
-			State.getState().render(sr, handler.getGameCamera());
+			State.getState().render(sr);
 		}
 		sr.end();
 		//Close ShapeRenderer batch
@@ -163,7 +135,7 @@ public class Game extends ApplicationAdapter {
 		//Open batch for SpriteBatch (Rendering Text and Interface)
 		batch.begin();
 		if (State.getState() != null) {
-			State.getState().renderUi(batch, handler.getGameCamera());
+			State.getState().renderUi(batch);
 		}
 		
 		font.setColor(Color.RED);

@@ -13,12 +13,14 @@ import cell.rules.CellRule;
 import math.Chance;
 
 public class CellUpdater {
-	// return (rightCol != null) ? rightCol : getLeftCollision();
+	//Width and height of the world
 	private static int width = 0;
 	private static int height = 0;
 
+	//Returns a new Cell[][] (which is basically the new updated world). Takes in the current world and what cell should
+	//be updated. Function only apply physics, not reactions.
 	public static Cell[][] cellPhysics(Cell[][] map, Point cellLocation) {
-		// Get width and height
+		// Get width and height of world
 		width = map[0].length;
 		height = map.length;
 
@@ -42,7 +44,7 @@ public class CellUpdater {
 		if (Chance.inRange(rand.nextFloat() * 100f, cell.getType().getDeathChance()))
 			return setCell(map, x, y, null);
 
-		//Try dispersing liquids
+		//Try dispersing liquids (if an edge is close enough to a liquid, then )
 		int dir = -1;
 		if (randomDir == 1) dir = 1;
 		
@@ -120,6 +122,7 @@ public class CellUpdater {
 		return map;
 	}
 
+	@SuppressWarnings("serial")
 	private static final ArrayList<Point> reactionPoints = new ArrayList<>() {
 		{
 			add(new Point(0, 1));
@@ -129,7 +132,9 @@ public class CellUpdater {
 		}
 	};
 
-	// Reactions, such as WATER + SALT = SALT_WATER
+	// Function takes a Cell[][] and a point. Returns a new Cell[][]
+	// Updates the Cell that corresponds to the location sent in. This function looks at neighboring cells and
+	// decide if the selected Cell and neighboring Cell should react with each other.
 	static Cell[][] reaction(Cell[][] map, Point mainCell) {
 		Cell cell = getCell(map, mainCell.x, mainCell.y);
 		if (cell == null)
@@ -165,7 +170,7 @@ public class CellUpdater {
 		return map;
 	}
 
-	// Collision
+	// Collision (returns true if the point sent in is occupied by a Cell that is not Null)
 	static boolean collision(Cell[][] map, int x, int y) {
 		// Collision if outside bounds
 		if (bounds(x, y)) {
@@ -180,12 +185,13 @@ public class CellUpdater {
 		return false;
 	}
 
+	// Checks if a point is outside the world bounds. Returns true if the point is outside. 
 	static boolean bounds(int x, int y) {
 		// Collision if outside bounds
 		return (x < 0 || x >= width || y < 0 || y >= height);
 	}
 
-	// Tells a cell if it can move, taking density into account.
+	// Tells a Cell if it can move from a point to another in the World, taking its density into account.
 	static boolean tryMove(Cell[][] map, int x1, int y1, int x2, int y2) {
 		// If outside boundaries, return false
 		if (bounds(x2, y2))
@@ -273,17 +279,11 @@ public class CellUpdater {
 
 		// If it is another solid, what should happen? DON'T MOVE (UNTIL BETTER
 		// SOLUTION)
-		// if (firstPhase == CellPhase.SOLID && secondPhase == CellPhase.SOLID) return
-		// false;
-
-		// Returns false if:
-		/*
-		 * Solid moves through solid Liquid moves through solid (todo) no
-		 */
+		
 		return false;
 	}
 
-	// Get cell at X, Y
+	// Function takes a point and returns the Cell at location X, Y
 	static Cell getCell(Cell[][] map, int x, int y) {
 		if (bounds(x, y))
 			return null;
@@ -291,6 +291,7 @@ public class CellUpdater {
 		return map[y][x];
 	}
 
+	// Function takes a point and a Cell, which will replace the current Cell at location X, Y in the map
 	static Cell[][] setCell(Cell[][] map, int x, int y, Cell newCell) {
 		if (bounds(x, y)) {
 			return map;
@@ -301,6 +302,7 @@ public class CellUpdater {
 		return map;
 	}
 
+	// Function moves a Cell by taking in two points (start point and "goal" point)
 	static Cell[][] moveCell(Cell[][] map, int fromX, int fromY, int toX, int toY) {
 		if (bounds(toX, toY)) {
 			return map;
@@ -312,11 +314,8 @@ public class CellUpdater {
 		return map;
 	}
 
+	//Function switches place on 2 Cells by taking in 2 points. 
 	static Cell[][] switchPlace(Cell[][] map, int x1, int y1, int x2, int y2) {
-		/*
-		 * if (x1 < 0 || x1 >= width || y1 < 0 || y1 >= height) return map; if (x2 < 0
-		 * || x2 >= width || y2 < 0 || y2 >= height) return map;
-		 */
 		if (bounds(x1, y2) || bounds(x2, y2))
 			return map;
 
@@ -327,6 +326,7 @@ public class CellUpdater {
 		return map;
 	}
 
+	//Function fills a square with the dimension sent into the function, inside the map[][] with the CellType that is sent in.
 	static Cell[][] fill(Cell[][] map, int originX, int originY, int width, CellType type) {
 		for (int y = originY - (int) Math.floor(width / 2.0f); y < Math.ceil(originY + width / 2.0); y++) {
 			for (int x = originX - (int) Math.floor(width / 2.0f); x < Math.ceil(originX + width / 2.0); x++) {
@@ -338,149 +338,4 @@ public class CellUpdater {
 		}
 		return map;
 	}
-
-	public static Point cellMove(Cell[][] map, Point cellLocation) {
-		Random rand = new Random();
-		int randomDir = rand.nextInt(2);
-		float randomMove = rand.nextFloat() * 100f;
-
-		// Get width and height
-		width = map[0].length;
-		height = map.length;
-
-		// Get the cell that is to be moved
-		Cell cell = getCell(map, cellLocation.x, cellLocation.y);
-		if (cell == null)
-			return cellLocation;
-		CellRule rules = cell.getType().getRules();
-
-		// RULES
-
-		// Static
-		if (rules.isStatic())
-			return cellLocation;
-
-		// Gravity
-		if (!collision(map, cellLocation.x, cellLocation.y + rules.gravity()) && rules.gravity() != 0)
-			return new Point(cellLocation.x, cellLocation.y + rules.gravity());
-
-		// Move diagonally
-		if (randomMove <= rules.moveChance()) {
-			switch (randomDir) {
-			case 0:
-				// Move diagonally right
-				if (!collision(map, cellLocation.x + 1, cellLocation.y + rules.gravity())
-						&& !collision(map, cellLocation.x + 1, cellLocation.y))
-					return new Point(cellLocation.x + 1, cellLocation.y + rules.gravity());
-
-				// Move diagonally left
-				if (!collision(map, cellLocation.x - 1, cellLocation.y + rules.gravity())
-						&& !collision(map, cellLocation.x - 1, cellLocation.y))
-					return new Point(cellLocation.x - 1, cellLocation.y + rules.gravity());
-				break;
-
-			case 1:
-				// Move diagonally left
-				if (!collision(map, cellLocation.x - 1, cellLocation.y + rules.gravity())
-						&& !collision(map, cellLocation.x - 1, cellLocation.y))
-					return new Point(cellLocation.x - 1, cellLocation.y + rules.gravity());
-
-				// Move diagonally right
-				if (!collision(map, cellLocation.x + 1, cellLocation.y + rules.gravity())
-						&& !collision(map, cellLocation.x + 1, cellLocation.y))
-					return new Point(cellLocation.x + 1, cellLocation.y + rules.gravity());
-				break;
-			}
-		}
-
-		// Spread left and right
-		if (randomMove <= rules.moveChance()) {
-			if (rules.spreadFactor() != -1) {
-				switch (randomDir) {
-				case 0:
-					// Move right
-					if (!collision(map, cellLocation.x + 1, cellLocation.y)
-							&& !collision(map, cellLocation.x + 1, cellLocation.y))
-						return new Point(cellLocation.x + 1, cellLocation.y);
-
-					// Move left
-					if (!collision(map, cellLocation.x - 1, cellLocation.y)
-							&& !collision(map, cellLocation.x - 1, cellLocation.y))
-						return new Point(cellLocation.x - 1, cellLocation.y);
-					break;
-
-				case 1:
-					if (!collision(map, cellLocation.x - 1, cellLocation.y)
-							&& !collision(map, cellLocation.x - 1, cellLocation.y))
-						return new Point(cellLocation.x - 1, cellLocation.y);
-
-					// Move diagonally left
-					if (!collision(map, cellLocation.x + 1, cellLocation.y)
-							&& !collision(map, cellLocation.x + 1, cellLocation.y))
-						return new Point(cellLocation.x + 1, cellLocation.y);
-					break;
-				}
-			}
-		}
-
-		// Returns the location where the cell should be moved.
-		return cellLocation;
-	}
-
 }
-
-/*
- * Cell cellUnderMe = getCell(map, cellLocation.x, cellLocation.y - 1); if
- * (cellUnderMe != null) { if(cellUnderMe.getType().getDensity() <
- * cell.getType().getDensity()) { map = switchPlace(map, cellLocation.x,
- * cellLocation.y, cellLocation.x, cellLocation.y - 1); cell = getCell(map,
- * cellLocation.x, cellLocation.y); rules = cell.getType().getRules(); } }
- */
-
-//RULES
-/*
- * //Gravity if (!collision(map, cellLocation.x, cellLocation.y +
- * rules.gravity()) && rules.gravity() != 0) { return moveCell(map,
- * cellLocation.x, cellLocation.y, cellLocation.x, cellLocation.y +
- * rules.gravity()); }
- * 
- * //Move diagonally if (randomMove <= rules.moveChance() &&
- * rules.moveDiagonally()) { switch(randomDir) { case 0: //Move diagonally right
- * if (!collision(map, cellLocation.x + 1, cellLocation.y + rules.gravity()) &&
- * !collision(map, cellLocation.x + 1, cellLocation.y)) return moveCell(map,
- * cellLocation.x, cellLocation.y, cellLocation.x + 1, cellLocation.y +
- * rules.gravity());
- * 
- * //Move diagonally left if (!collision(map, cellLocation.x - 1, cellLocation.y
- * + rules.gravity()) && !collision(map, cellLocation.x - 1, cellLocation.y))
- * return moveCell(map, cellLocation.x, cellLocation.y, cellLocation.x - 1,
- * cellLocation.y + rules.gravity()); break;
- * 
- * case 1: //Move diagonally left if (!collision(map, cellLocation.x - 1,
- * cellLocation.y + rules.gravity()) && !collision(map, cellLocation.x - 1,
- * cellLocation.y)) return moveCell(map, cellLocation.x, cellLocation.y,
- * cellLocation.x - 1, cellLocation.y + rules.gravity());
- * 
- * //Move diagonally right if (!collision(map, cellLocation.x + 1,
- * cellLocation.y + rules.gravity()) && !collision(map, cellLocation.x + 1,
- * cellLocation.y)) return moveCell(map, cellLocation.x, cellLocation.y,
- * cellLocation.x + 1, cellLocation.y + rules.gravity()); break; } }
- * 
- * //Spread left and right if (randomMove <= rules.moveChance() &&
- * rules.moveHorizontally()) { if (rules.spreadFactor() != -1) {
- * switch(randomDir) { case 0: //Move right if (!collision(map, cellLocation.x +
- * 1, cellLocation.y)) return moveCell(map, cellLocation.x, cellLocation.y,
- * cellLocation.x + 1, cellLocation.y);
- * 
- * //Move left if (!collision(map, cellLocation.x - 1, cellLocation.y)) return
- * moveCell(map, cellLocation.x, cellLocation.y, cellLocation.x - 1,
- * cellLocation.y); break;
- * 
- * case 1: //Move left if (!collision(map, cellLocation.x - 1, cellLocation.y))
- * return moveCell(map, cellLocation.x, cellLocation.y, cellLocation.x - 1,
- * cellLocation.y);
- * 
- * //Move right if (!collision(map, cellLocation.x + 1, cellLocation.y)) return
- * moveCell(map, cellLocation.x, cellLocation.y, cellLocation.x + 1,
- * cellLocation.y); break; } } }
- */

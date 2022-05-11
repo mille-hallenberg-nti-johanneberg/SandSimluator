@@ -2,8 +2,8 @@ package math;
 
 import com.badlogic.gdx.graphics.Color;
 
+//Is used as Default Colour for CellType
 public class ColorGradient {
-	//Is used as Default Colour for CellType
 	
 	//Colors in the gradient
 	private Color color1; 

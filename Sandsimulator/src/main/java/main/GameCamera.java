@@ -1,31 +1,23 @@
 package main;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 
+//This class contains positions and its zoom. This class is used for the camera in the World.
 public class GameCamera extends OrthographicCamera {
 	private float zoom = 1f;
 	private float x, y;
 	
 	private float maxZoom = 0.01f;
 	
+	//Constructor 
 	public GameCamera() {
 		super(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 	    super.position.set(super.viewportWidth / 2, super.viewportHeight / 2, 0);
 	}
 
-	public float getZoom() {
-		return zoom;
-	}
-
-	//Sets the zoom of GameCamera
-	public void setZoom(float zoom) {
-		this.zoom = zoom;
-		if (this.zoom < maxZoom) this.zoom = maxZoom;
-		super.zoom = zoom;
-	}
+	
 	
 	//Zooms in by z amount on point z, y.
 	public void changeZoom(float zoom, int pointX, int pointY) {
@@ -47,12 +39,34 @@ public class GameCamera extends OrthographicCamera {
 		updatePosition();
 	}
 	
+	public void moveX(float amount) {
+		x += amount;
+		updatePosition();
+	}
+	
+	public void moveY(float amount) {
+		y += amount;
+		updatePosition();
+	}
+	
 	//Updates 
 	void updatePosition() {
 		super.position.set(this.x, this.y, 0);
 		super.update();
 	}
 
+	//Getters and setters
+	public float getZoom() {
+		return zoom;
+	}
+	
+	//Sets the zoom of GameCamera
+	public void setZoom(float zoom) {
+		this.zoom = zoom;
+		if (this.zoom < maxZoom) this.zoom = maxZoom;
+		super.zoom = zoom;
+	}
+	
 	public float getX() {
 		return x;
 	}

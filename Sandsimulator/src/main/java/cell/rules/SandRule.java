@@ -1,5 +1,6 @@
 package cell.rules;
 
+//This is just a rule set of the general powder/solid
 public class SandRule implements CellRule{
 
 	@Override

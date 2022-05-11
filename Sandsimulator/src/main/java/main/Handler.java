@@ -3,17 +3,17 @@ package main;
 import input.InputManager;
 import world.World;
 
+//This class should have been used much more. But in a nutshell it is a class that works like a 
+//"bridge" between classes. 
 public class Handler {
 	
 	private Game game;
 	private World world;
 	
+	//Getters and setters
+	
 	public Handler(Game game) {
 		this.game = game;
-	}
-	
-	public GameCamera getGameCamera() {
-		return game.getGameCamera();
 	}
 	
 	public Game getGame() {

@@ -4,8 +4,9 @@ import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
+//This is responsible for launching the entire application.
+//It starts a new LwjglApplication (with window).
 public class Launcher {
-	//This is called
 	public static void main(String[] args) {
 		System.out.println("Program started");
 		var config = new LwjglApplicationConfiguration();

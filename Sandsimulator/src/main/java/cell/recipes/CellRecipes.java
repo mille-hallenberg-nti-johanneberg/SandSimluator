@@ -9,9 +9,9 @@ public class CellRecipes {
 	//This class is a collection of different CellRecipes but also contains functions that loads the recipes and gets related recipes.
 	
 	//Just create an ArrayList full of recipes
+	@SuppressWarnings("serial")
 	static final ArrayList<CellRecipe> recipes = new ArrayList<CellRecipe>() {{
 		add(new CellRecipe(CellType.WATER, CellType.SALT, CellType.SALT_WATER, null, 1f));
-		add(new CellRecipe(CellType.SALT_WATER, CellType.STATIC, CellType.SALT, CellType.STATIC, 2f));
 		add(new CellRecipe(CellType.WATER, CellType.SOIL, null, CellType.MUD, 2f));		
 		add(new CellRecipe(CellType.WATER, CellType.LAVA, CellType.STEAM, CellType.ROCK, 95f));		
 		add(new CellRecipe(CellType.STEAM, CellType.STEAM, CellType.WATER, null, 2f));		

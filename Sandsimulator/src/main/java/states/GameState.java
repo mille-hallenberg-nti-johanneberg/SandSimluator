@@ -4,10 +4,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import input.InputManager;
-import main.GameCamera;
 import main.Handler;
 import world.World;
 
+//This class is the State where the user interacts with the world.
 public class GameState extends State{
 	
 	//State for the Game
@@ -25,12 +25,12 @@ public class GameState extends State{
 	}
 
 	@Override
-	public void render(ShapeRenderer sr, GameCamera camera) {
-		world.render(sr, camera);
+	public void render(ShapeRenderer sr) {
+		world.render(sr);
 	}
 
 	@Override
-	public void renderUi(SpriteBatch batch, GameCamera camera) {
-		world.renderUi(batch, camera);
+	public void renderUi(SpriteBatch batch) {
+		world.renderUi(batch);
 	}
 }

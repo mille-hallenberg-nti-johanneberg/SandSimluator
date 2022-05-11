@@ -2,11 +2,11 @@ package input;
 
 import java.util.ArrayList;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 
+//An InputManager that implements the InputProcessor from the libGDX library. This class is reading input from
+//the user
 public class InputManager implements InputProcessor{
-	//An InputManager that implements the InputProcessor from the libGDX library.
 	
 	private Keys[] keys = new Keys[256];
 	

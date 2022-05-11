@@ -22,6 +22,8 @@ import main.Game;
 import main.GameCamera;
 import math.OpenSimplexNoise;
 
+//This class contains all information about the world. It also contains functions for creating the world, 
+//rendering the world, rendering controls etc.
 public class World {
 
 	private float cellSize = 1f;
@@ -35,7 +37,7 @@ public class World {
 	//Size of Noise
 	private static final double FEATURE_SIZE = 24;
 
-	//World Constructor, takes Width and Height and creates a new Environment
+	//World Constructor, takes Width and Height and calls the createWorld() function
 	public World(int width, int height) {
 		this.width = width;
 		this.height = height;
@@ -45,7 +47,7 @@ public class World {
 		createWorld();
 	}
 
-	//Creates an Environment from a seed
+	//Creates an Environment from a seed (with OpenSimplexNoise)
 	public void createWorld() {
 		OpenSimplexNoise noise = new OpenSimplexNoise(235);
 		for (int y = 0; y < height; y++) {
@@ -59,14 +61,14 @@ public class World {
 				} else if (noiseValue > 0.3) {
 					world[y][x] = new Cell(CellType.STATIC);
 				} else if (noiseBorder(noiseValue, noise.eval(x / FEATURE_SIZE, (y - 3) / FEATURE_SIZE), 0.3)) {
-					world[y][x] = new Cell(CellType.SOIL);
+					world[y][x] = new Cell(CellType.ROCK);
 				}
 			}
 		}
 
 	}
 	
-	//Support function for createWorld(). Returns if there should be an edge or not.
+	//Support function for createWorld(). Returns true/false if there should be an edge or not.
 	boolean noiseBorder(double value1, double value2, double threshold) {
 		if (value2 <= threshold)
 			return false;
@@ -74,12 +76,11 @@ public class World {
 	}
 	
 	//Update values
-	int iterations;
 	int updateFrame;
 	int simSpeed = 1;
 	int simFrame = 0;
 	
-	//Is called from GameState
+	//Is called from GameState, calls the updateWorld() function every SimFrame
 	public void update(InputManager input) {
 		controls(input);
 		if (simSpeed != 0) {
@@ -95,9 +96,31 @@ public class World {
 	int currentControlType = 0;
 	int cursorSize = 1;
 	
-	//Controls for World
+	//Gets input from player and updates things like camera position, camera zoom etc
 	void controls(InputManager input) {
-
+		if (Keys.A.pressed) {
+			Game.getGameCamera().moveX(-1);
+		}
+		if (Keys.D.pressed) {
+			Game.getGameCamera().moveX(1);
+		}
+		if (Keys.S.pressed) {
+			Game.getGameCamera().moveY(-1);
+		}
+		if (Keys.W.pressed) {
+			Game.getGameCamera().moveY(1);
+		}
+		
+		if (Keys.P.pressed) {
+			Game.getGameCamera().changeZoom(-0.02f, Mouse.getX(), Mouse.getY());
+		}
+		if (Keys.O.pressed) {
+			Game.getGameCamera().changeZoom(+0.02f, Mouse.getX(), Mouse.getY());
+		}
+		if (Keys.R.pressed) {
+			createWorld();
+		}
+		
 		if (Keys.NUM_1.pressed)
 			currentControlType = 0;
 		if (Keys.NUM_2.pressed)
@@ -170,17 +193,13 @@ public class World {
 		}
 	}
 	
-	//Iterates the World and updates positions, states and CellTypes
+	//Function iterates the World and updates every cell. Calls functions for every single cell, 
+	//functions such as physics in the CellUpdater class.
+	
 	void updateWorld() {
 		//Current frame
 		updateFrame++;
 		updateFrame %= 2;
-
-		if (iterations < 400) {
-			world[220][125] = new Cell(CellType.SALT);
-		}
-
-		iterations++;
 
 		//Updates the World in an unorganized order by creating two List<Integer>s containing Integers ranging from 0 to width/height.
 		//These lists are scrambled.
@@ -216,9 +235,9 @@ public class World {
 	}
 	
 	//Renders world and interface
-	public void render(ShapeRenderer sr, GameCamera camera) {
-		renderWorld(sr, camera);
-		renderOther(sr, camera);
+	public void render(ShapeRenderer sr) {
+		renderWorld(sr);
+		renderOther(sr);
 	}
 
 	//Cell "Hierarchy" for the player to choose between Cells.
@@ -226,7 +245,7 @@ public class World {
 			CellType.SALT, CellType.WATER, CellType.LAVA };
 
 	//Renders user interface
-	public void renderUi(SpriteBatch batch, GameCamera camera) {
+	public void renderUi(SpriteBatch batch) {
 		String str = "";
 		// Render Inventory
 		for (int i = 0; i < 7; i++) {
@@ -281,8 +300,8 @@ public class World {
 
 	}
 
-	//Renders the World (Environment, Border)
-	void renderWorld(ShapeRenderer sr, GameCamera camera) {
+	//Renders the World (Environment and border)
+	void renderWorld(ShapeRenderer sr) {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				Cell current = world[y][x];
@@ -296,8 +315,8 @@ public class World {
 		}
 	}
 
-	//Renders things like Cursor
-	void renderOther(ShapeRenderer sr, GameCamera camera) {
+	//Renders things like a Cursor
+	void renderOther(ShapeRenderer sr) {
 		sr.setColor(Color.GREEN);
 		sr.set(ShapeType.Line);
 		sr.rect(0, 0, width, height);

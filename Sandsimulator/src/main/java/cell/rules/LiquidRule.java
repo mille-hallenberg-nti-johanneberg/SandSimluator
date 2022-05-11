@@ -1,5 +1,6 @@
 package cell.rules;
 
+//This is just a rule set for the general liquid.
 public class LiquidRule implements CellRule{
 	
 	@Override
